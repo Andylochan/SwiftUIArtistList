@@ -11,44 +11,36 @@ import SwiftUI
 struct ContentView: View {
     @State var addItemName: String = ""
     @State var addItem = false
-    @State var items = [
-        Item(name: "Vincent Van Gogh - 1853 - Zundert - The Netherlands"),
-        Item(name: "Pablo Picasso - 1881 - Malaga - Spain"),
-        Item(name: "Takashi Murakami - 1962 - Tokyo - Japan"),
-        Item(name: "Claude Monet - 1840 - Paris - France"),
-        Item(name: "Utamaro - 1736 - Edo - Japan"),
-        Item(name: "Frida Kahlo - 1907 - Mexico City - Mexico"),
-        Item(name: "Georgia O'Keeffe - 1887 - Sun Prairie - United States"),
-        Item(name: "Hokusai - 1760 - Edo - Japan"),
-        Item(name: "Paul Gauguin - 1848 - Paris - France"),
-        Item(name: "Jean-Michel Basquiat - 1960 - Brooklyn - United States"),
-        Item(name: "James Jean - 1979 - Taipei - Taiwan")
-    ]
+    
+    @ObservedObject var itemStore = ItemStore()
     @Environment(\.presentationMode) var presentationMode //dismiss modal
     
     var body: some View {
 
-        VStack {
+        ZStack {
             NavigationView {
                 List {
-                    ForEach(items, id: \.self) { item in
-                        Text(item.name)
+                    ForEach(self.itemStore.items, id: \.self) { item in
+                        VStack {
+                            Text(item.name)
+                                .font(.system(size: 20))
+                        }
                     }
                     .onMove(perform: move)
                 }
-            .navigationBarTitle("Artist List")
-            
-            //Nav bar buttons to enable add / edit functions
-            .navigationBarItems(
-                leading: Button(action:
-                {
-                    self.addItem.toggle()
-                })
-                {
-                    Image(systemName: "plus")
-                },
-                trailing: EditButton()
-            )
+                .navigationBarTitle("Artist List")
+                    
+                    //Nav bar buttons to enable add / edit functions
+                    .navigationBarItems(
+                        leading: Button(action:
+                        {
+                            self.addItem.toggle()
+                        })
+                        {
+                            Image(systemName: "plus")
+                        },
+                        trailing: EditButton()
+                )
                 
             }.sheet(isPresented: $addItem) {
                 VStack {
@@ -57,7 +49,7 @@ struct ContentView: View {
                         TextField("Enter artist info", text: self.$addItemName)
                     }
                     Button(action: {
-                        self.items.append(Item(name: self.addItemName))
+                        self.itemStore.items.append(Item(name: self.addItemName))
                         self.addItem.toggle() //Toggle off
                         self.addItemName = ""
                         self.presentationMode.wrappedValue.dismiss()
@@ -70,13 +62,9 @@ struct ContentView: View {
     }
     
     func move(from source: IndexSet, to destination: Int) {
-        items.move(fromOffsets: source, toOffset: destination)
+        itemStore.items.move(fromOffsets: source, toOffset: destination)
     }
     
-}
-
-struct Item: Hashable {
-    let name: String;
 }
 
 struct ContentView_Previews: PreviewProvider {
