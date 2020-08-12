@@ -24,42 +24,48 @@ struct ContentView: View {
         Item(name: "Jean-Michel Basquiat - 1960 - Brooklyn - United States"),
         Item(name: "James Jean - 1979 - Taipei - Taiwan")
     ]
+    @Environment(\.presentationMode) var presentationMode //dismiss modal
     
     var body: some View {
 
-        NavigationView {
-            List {
-                ForEach(items, id: \.self) { item in
-                    Text(item.name)
+        VStack {
+            NavigationView {
+                List {
+                    ForEach(items, id: \.self) { item in
+                        Text(item.name)
+                    }
+                    .onMove(perform: move)
                 }
-                .onMove(perform: move)
-            }
-        .navigationBarTitle("Artist List")
-        
-        //Nav bar buttons to enable add / edit functions
-        .navigationBarItems(leading: Button(action: 
-            {
-                self.addItem.toggle()
-            })
-            {
-                Image(systemName: "plus")
-            },
-            trailing: EditButton())
+            .navigationBarTitle("Artist List")
             
-        }.sheet(isPresented: $addItem) {
-            VStack {
-                HStack {
-                    Text("Add Artist: ")
-                    TextField("Enter artist info", text: self.$addItemName)
-                }
-                Button(action: {
-                    self.items.append(Item(name: self.addItemName))
-                    self.addItem.toggle() //Toggle off
-                    self.addItemName = ""
-                }, label: {
-                    Text("Add")
+            //Nav bar buttons to enable add / edit functions
+            .navigationBarItems(
+                leading: Button(action:
+                {
+                    self.addItem.toggle()
                 })
-            }.padding(100)
+                {
+                    Image(systemName: "plus")
+                },
+                trailing: EditButton()
+            )
+                
+            }.sheet(isPresented: $addItem) {
+                VStack {
+                    HStack {
+                        Text("Add Artist: ")
+                        TextField("Enter artist info", text: self.$addItemName)
+                    }
+                    Button(action: {
+                        self.items.append(Item(name: self.addItemName))
+                        self.addItem.toggle() //Toggle off
+                        self.addItemName = ""
+                        self.presentationMode.wrappedValue.dismiss()
+                    }, label: {
+                        Text("Add")
+                    })
+                }.padding(100)
+            }
         }
     }
     
